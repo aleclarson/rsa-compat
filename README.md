@@ -1,69 +1,67 @@
-# rsa-compat
 
-JavaScript RSA utils that work on Windows, Mac, and Linux with or without C compiler
+# rsa-utils v1.3.0
 
-In order to provide a module that "just works" everywhere, we mix and match methods
-from `node.js` core, `ursa`, `forge`, and others.
-
-This is useful for **certbot** and **letsencrypt**.
+RSA utilities useful for **certbot** and **letsencrypt**.
 
 Forked from [Daplie/rsa-compat.js](https://www.npmjs.com/package/rsa-compat).
 
+```sh
+# Install C compiler
+apt-get install build-essential
+
+npm install aleclarson/rsa#1.3.0
+```
+
 ## CLI
 
-You can generate keypairs on Windows, Mac, and Linux using rsa-keygen-js:
-
-```bash
-# generates a new keypair in the current directory
-rsa-keypiar-js
+```sh
+# Generate a new keyPair in the current directory.
+rsa-keygen-js
 ```
 
 ## Examples
 
-Generate an RSA Keypair:
-
-```javascript
-var RSA = require('rsa-compat').RSA;
+```js
+var RSA = require('rsa');
 
 var bitlen = 1024;
 var exp = 65537;
 var options = { public: true, pem: true, internal: true };
 
-RSA.generateKeypair(bitlen, exp, options, function (err, keypair) {
-  console.log(keypair);
+RSA.generateKeyPair(bitlen, exp, options).then(function(keyPair) {
+  console.log(keyPair);
 });
 ```
 
-Here's what the object might look like:
+The returned promise resolves into this object:
 
-`console.log(keypair)`:
-```javascript
+```js
+{
+  publicKeyPem: '-----BEGIN RSA PUBLIC KEY-----\n/*base64 pem-encoded string*/',
+  privateKeyPem: '-----BEGIN RSA PRIVATE KEY-----\n/*base64 pem-encoded string*/',
+  privateKeyJwk: {,
+    kty: 'RSA',
+    n: '/*base64 modulus n = pq*/',
+    e: '/*base64 exponent (usually 65537)*/',
+    d: '/*base64 private exponent (d = e^−1 (mod ϕ(n))/',
+    p: '/*base64 first prime*/',
+    q: '/*base64 second prime*/',
+    dp: '/*base64 first exponent for Chinese remainder theorem (dP = d (mod p−1))*/',
+    dq: '/*base64 Second exponent, used for CRT (dQ = d (mod q−1))/',
+    qi: '/*base64 Coefficient, used for CRT (qinv = q^−1 (mod p))*/',
+  },
+  publicKeyJwk: {,
+    kty: 'RSA',
+    n: '/*base64 modulus n = pq*/',
+    e: '/*base64 exponent (usually 65537)*/',
+  },
 
-{ publicKeyPem: '-----BEGIN RSA PUBLIC KEY-----\n/*base64 pem-encoded string*/'
-, privateKeyPem: '-----BEGIN RSA PRIVATE KEY-----\n/*base64 pem-encoded string*/'
-, privateKeyJwk: {
-    kty: "RSA"
-  , n: '/*base64 modulus n = pq*/'
-  , e: '/*base64 exponent (usually 65537)*/'
-  , d: '/*base64 private exponent (d = e^−1 (mod ϕ(n))/'
-  , p: '/*base64 first prime*/'
-  , q: '/*base64 second prime*/'
-  , dp: '/*base64 first exponent for Chinese remainder theorem (dP = d (mod p−1))*/'
-  , dq: '/*base64 Second exponent, used for CRT (dQ = d (mod q−1))/'
-  , qi: '/*base64 Coefficient, used for CRT (qinv = q^−1 (mod p))*/'
-  }
-, publicKeyJwk: {
-    kty: "RSA"
-  , n: '/*base64 modulus n = pq*/'
-  , e: '/*base64 exponent (usually 65537)*/'
-  }
-
-, _ursa: '/*undefined or intermediate ursa object*/'
-, _ursaPublic: '/*undefined or intermediate ursa object*/'
-, _forge: '/*undefined or intermediate forge object*/'
-, _forgePublic: '/*undefined or intermediate forge object*/'
+  _ursa: '/*undefined or intermediate ursa object*/',
+  _ursaPublic: '/*undefined or intermediate ursa object*/',
+  _forge: '/*undefined or intermediate forge object*/',
+  _forgePublic: '/*undefined or intermediate forge object*/',
 }
-```
+````
 
 NOTE: this object is JSON safe as _ursa and _forge will be ignored
 
@@ -71,7 +69,7 @@ See http://crypto.stackexchange.com/questions/6593/what-data-is-saved-in-rsa-pri
 
 ## API
 
-* `RSA.generateKeypair(bitlen, exp, options, cb)`
+* `RSA.generateKeyPair(bitlen, exp, options)`
 * `RSA.import(keypair, options)`
 * `RSA.exportPrivatePem(keypair)`
 * `RSA.exportPublicPem(keypair)`
@@ -83,14 +81,13 @@ See http://crypto.stackexchange.com/questions/6593/what-data-is-saved-in-rsa-pri
 
 `keypair` can be any object with any of these keys `publicKeyPem, privateKeyPem, publicKeyJwk, privateKeyJwk`
 
-### RSA.generateKeypair(bitlen, exp, options, cb)
+### RSA.generateKeyPair(bitlen, exp, options, cb)
 
 Create a private keypair and export it as PEM, JWK, and/or internal formats
 
-```javascript
-RSA.generateKeypair(null, null, null, function (keypair) { /*...*/ });
-
-RSA.generateKeypair(1024, 65537, { pem: false, public: false, internal: false }, function (keypair) { /*...*/ });
+```js
+promise = RSA.generateKeyPair();
+promise = RSA.generateKeyPair(1024, 65537, { pem: false, public: false });
 ```
 
 `bitlen`: *1024* (default), 2048, or 4096
@@ -98,7 +95,7 @@ RSA.generateKeypair(1024, 65537, { pem: false, public: false, internal: false },
 `exp`: *65537* (default)
 
 `options`:
-```javascript
+```js
 { public: false       // export public keys
 , pem: false          // export pems
 , jwk: true           // export jwks
@@ -112,13 +109,13 @@ RSA.generateKeypair(1024, 65537, { pem: false, public: false, internal: false },
 
 Imports keypair as JWKs and internal values `_ursa` and `_forge`.
 
-```javascript
+```js
 var keypair = RSA.import({ privateKeyPem: '...'});
 
 console.log(keypair);
 ```
 
-```javascript
+```js
 { privateKeyPem: ..., privateKeyJwk: ..., _ursa: ..., _forge: ... }
 ```
 
@@ -134,7 +131,7 @@ Note:
 
 Example:
 
-```javascript
+```js
 var keypair = { privateKeyPem: '...' };
 
 keypair.publicKeyJwk = RSA.exportPublicJwk(keypair);
@@ -146,7 +143,7 @@ console.log(keypair);
 
 Generates a signature in JWS format (necessary for **certbot**/**letsencrypt**).
 
-```javascript
+```js
 var message = "Hello, World!"
 var nonce = crypto.randomBytes(16).toString('hex');
 var jws = RSA.signJws(keypair, message, nonce);
@@ -156,7 +153,7 @@ console.log(jws);
 
 The result looks like this:
 
-```javascript
+```js
 { "header": {
     "alg": "RS256",
     "jwk": {
@@ -176,7 +173,7 @@ The result looks like this:
 You can generate the CSR in human-readable or binary / base64 formats:
 
 `RSA.generateCsrPem(keypair, names)`:
-```javascript
+```js
 var pem = RSA.generateCsrPem(keypair, [ 'example.com', 'www.example.com' ]);
 
 console.log(pem);
@@ -185,7 +182,7 @@ console.log(pem);
 web-safe base64 for **certbot**/**letsencrypt**:
 
 `RSA.generateCsrDerWeb64(keypair, names)`:
-```javascript
+```js
 var web64 = RSA.generateCsrDerWeb64(keypair, [ 'example.com', 'www.example.com' ]);
 
 console.log(web64);
