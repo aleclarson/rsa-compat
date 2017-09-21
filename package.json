@@ -6,10 +6,8 @@
     "rsa-keygen-js": "bin/rsa-keygen.js"
   },
   "dependencies": {
-    "node-forge": "^0.6.41",
-    "ursa": "^0.9.4"
-  },
-  "optionalDependencies": {
-    "ursa": "^0.9.4"
-  },
+    "csr-gen": "aleclarson/csr-gen#1.1.0",
+    "pem-jwk": "1.5.x",
+    "ursa": "0.9.x"
+  }
 }

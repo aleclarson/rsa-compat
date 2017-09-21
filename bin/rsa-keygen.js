@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-var RSA = require('../').RSA;
+var RSA = require('..');
 var path = require('path');
 var fs = require('fs');
 
@@ -17,19 +17,19 @@ if (fs.existsSync(privkeyPath)) {
   process.exit(1);
 }
 
-RSA.generateKeypair(bitlen, exp, opts, function (err, keypair) {
+RSA.generateKeyPair(bitlen, exp, opts).then(function(keyPair) {
   console.info('');
   console.info('');
 
-  fs.writeFileSync(privkeyPath, keypair.privateKeyPem, 'ascii');
+  fs.writeFileSync(privkeyPath, keyPair.privateKeyPem, 'ascii');
   console.info(privkeyPath + ':');
   console.info('');
-  console.info(keypair.privateKeyPem);
+  console.info(keyPair.privateKeyPem);
 
   console.info('');
 
-  fs.writeFileSync(pubkeyPath, keypair.publicKeyPem, 'ascii');
+  fs.writeFileSync(pubkeyPath, keyPair.publicKeyPem, 'ascii');
   console.info(pubkeyPath + ':');
   console.info('');
-  console.info(keypair.publicKeyPem);
-});
+  console.info(keyPair.publicKeyPem);
+}, console.error);
