@@ -2,7 +2,7 @@
 
 var RSA = require('../').RSA;
 
-RSA.generateKeypair(null, null, null, function (err, keys) {
+RSA.generateKeyPair(null, null, null, function (err, keys) {
   if (!keys.privateKeyJwk) {
     throw new Error("Expected privateKeyJwk, but it is missing");
   }
@@ -26,7 +26,7 @@ RSA.generateKeypair(null, null, null, function (err, keys) {
   , internal: true      // preserve internal intermediate formats (_ursa, _forge)
   //, thumbprint: true    // JWK sha256 thumbprint
   };
-  RSA.generateKeypair(512, 65537, options, function (err, keys) {
+  RSA.generateKeyPair(512, 65537, options, function (err, keys) {
     if (
         (keys.publicKeyJwk && !keys.thumbprint)
     || !keys.privateKeyPem
