@@ -6,7 +6,6 @@
     "rsa-keygen-js": "bin/rsa-keygen.js"
   },
   "dependencies": {
-    "csr-gen": "aleclarson/csr-gen#1.1.0",
     "pem-jwk": "1.5.x",
     "ursa": "0.9.x"
   }

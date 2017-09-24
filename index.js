@@ -5,7 +5,6 @@
 */
 'use strict';
 
-var generateCsr = require('csr-gen');
 var crypto = require('crypto');
 var ursa = require('ursa');
 
@@ -116,26 +115,7 @@ RSA.exportPublicPem = ursa.exportPublicPem;
 RSA.exportPrivateJwk = utils.exportPrivateJwk;
 RSA.exportPublicJwk = utils.exportPublicJwk;
 
-RSA.generateCsrPem = function(keyPair, domains, subject) {
-  return generateCsr({
-    key: ursa.exportPrivatePem(keyPair),
-    domains: domains,
-    subject: subject,
-  }).then(function(csr) {
-    return csr.toString('ascii');
-  });
-};
-
-RSA.generateCsrDerWeb64 = function(keyPair, domains, subject) {
-  return generateCsr({
-    der: true,
-    key: ursa.exportPrivatePem(keyPair),
-    domains: domains,
-    subject: subject,
-  }).then(function(csr) {
-    return toWebsafeBase64(csr.toString('base64'));
-  });
-};
+RSA.toWebsafeBase64 = toWebsafeBase64;
 
 function toWebsafeBase64(b64) {
   return b64.replace(/[+]/g, "-").replace(/\//g, "_").replace(/=/g,"");
